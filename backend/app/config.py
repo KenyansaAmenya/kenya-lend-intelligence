@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=os.getenv("ENV_FILE",".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -44,10 +44,12 @@ class Settings(BaseSettings):
     cors_origins: str = Field(default="http://localhost:3000", description="CORS allowed origins")
     rate_limit_per_minute: int = Field(default=60, description="API rate limit per minute")
     
-    @field_validator("cors_origins")
+    @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str) -> List[str]:
-        return [origin.strip() for origin in v.split(",") if origin.strip()]
+        if instance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v    
     
     # ML Model Settings
     model_path: str = Field(default="./ml/models", description="Path to ML models")
@@ -55,6 +57,9 @@ class Settings(BaseSettings):
     default_model_path: str = Field(default="./ml/models/default_model.pkl", description="Default model path")
     churn_model_path: str = Field(default="./ml/models/churn_model.pkl", description="Churn model path")
     preprocessor_path: str = Field(default="./ml/models/preprocessor.pkl", description="Preprocessor path")
+    model_versioning: str = Field(default="latest", description="Model version to use")
+    model_registry_url: Optional[str] = Field(default=None, description="MLflow registry URL")
+    model_auto_load: bool = Field(default=True, description="Auto-load models on startup")
     
     train_test_split: float = Field(default=0.7, description="Training data split ratio")
     validation_split: float = Field(default=0.15, description="Validation data split ratio")
@@ -76,6 +81,15 @@ class Settings(BaseSettings):
     world_bank_api_url: str = Field(default="https://api.worldbank.org/v2", description="World Bank API URL")
     kaggle_username: Optional[str] = Field(default=None, description="Kaggle username")
     kaggle_key: Optional[str] = Field(default=None, description="Kaggle API key")
+
+    # M-PESA Integration 
+    mpesa_consumer_key: Optional[str] = Field(default=None)
+    mpesa_consumer_secret: Optional[str] = Field(default=None)
+    mpesa_passkey: Optional[str] = Field(default=None)
+    mpesa_shortcode: str = Field(default="174379")
+    mpesa_callback_url: Optional[str] = Field(default=None)
+    mpesa_timeout_url: Optional[str] = Field(default=None)
+    mpesa_environment: str = Field(default="sandbox") 
    
     # Logging
     log_level: str = Field(default="INFO", description="Logging level")
