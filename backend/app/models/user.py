@@ -47,8 +47,7 @@ class User(Base):
     
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, role={self.role.value})>"
-
-# role-based access control   
+   
 # Future Enhancements:
     # - Add multi-factor authentication fields
     # - Add password history for security
