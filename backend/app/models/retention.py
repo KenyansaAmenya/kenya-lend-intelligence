@@ -10,7 +10,6 @@ from sqlalchemy.orm import relationship
 
 from app.models.user import Base
 
-
 class RetentionAction(Base):
     
     __tablename__ = "retention_actions"
