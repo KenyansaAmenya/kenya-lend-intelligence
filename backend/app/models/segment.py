@@ -1,4 +1,4 @@
-# .
+# Customer Segmentation Model.
 # This will Store customer segmentation results from clustering algorithms
 
 import uuid
