@@ -90,3 +90,6 @@ class ExternalDatasetResponse(BaseModel):
 # TODO: Add real-time statement streaming schemas
 # TODO: Add statement fraud detection schemas
 # TODO: Add multi-currency support schemas
+# TODO: Add transaction categorization schemas
+# TODO: Add income & employment verification schemas
+# TODO: spending pattern analysis schemas
