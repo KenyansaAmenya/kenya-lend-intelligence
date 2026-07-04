@@ -8,14 +8,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
-
 class UserBase(BaseModel):
     # Base user schema.
     model_config = ConfigDict(from_attributes=True)
     
     email: EmailStr = Field(..., description="User email address")
     full_name: str = Field(..., min_length=2, max_length=255, description="Full name")
-
 
 class UserCreate(UserBase):
     # Schema for user registration.
@@ -38,7 +36,6 @@ class UserCreate(UserBase):
         if not any(c.isdigit() for c in v):
             raise ValueError("Password must contain at least one digit")
         return v
-
 
 class UserLogin(BaseModel):
     # user login schema .
