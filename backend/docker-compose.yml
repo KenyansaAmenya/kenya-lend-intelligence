@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kenya-lend-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=KenyaLendIntelligence
+      - APP_VERSION=0.1.0
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/kenya_lend_dev
+      - DATABASE_URL_SYNC=postgresql://postgres:postgres@db:5432/kenya_lend_dev
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - MODEL_PATH=./ml/models
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./ml/models:/app/ml/models
+      - ./logs:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - kenya-lend-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: kenya-lend-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=kenya_lend_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - kenya-lend-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: kenya-lend-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - kenya-lend-network
+
+  # Celery Worker (Will use this in future use)
+  # worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: kenya-lend-worker
+  #   command: celery -A app.tasks worker --loglevel=info
+  #   environment:
+  #     - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/kenya_lend_dev
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   networks:
+  #     - kenya-lend-network
+
+ 
+  # MLflow (Will use this in the future)
+  # mlflow:
+  #   image: mlflow/mlflow:latest
+  #   container_name: kenya-lend-mlflow
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - mlflow_data:/mlflow
+  #   networks:
+  #     - kenya-lend-network
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  # mlflow_data:
+
+
+networks:
+  kenya-lend-network:
+    driver: bridge
