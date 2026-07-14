@@ -1,0 +1,63 @@
+services:
+  - type: web
+    name: kenya-lend-intelligence-api
+    runtime: docker
+    repo: https://github.com/your-org/kenya-lend-intelligence
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: APP_NAME
+        value: KenyaLendIntelligence
+      - key: APP_VERSION
+        value: 0.1.0
+      - key: DEBUG
+        value: "false"
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kenya-lend-db
+          property: connectionString
+      - key: DATABASE_URL_SYNC
+        fromDatabase:
+          name: kenya-lend-db
+          property: connectionString
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: MODEL_PATH
+        value: ./ml/models
+      - key: LOG_LEVEL
+        value: INFO
+    healthCheckPath: /health
+    numInstances: 2
+    plan: standard
+
+databases:
+  - name: kenya-lend-db
+    databaseName: kenya_lend_prod
+    plan: standard
+    ipAllowList: []
+
+# FUTURE SERVICES 
+# - type: worker
+#   name: kenya-lend-worker
+#   runtime: docker
+#   dockerfilePath: ./backend/Dockerfile
+#   dockerCommand: celery -A app.tasks worker --loglevel=info
+#   envVars:
+#     - fromService:
+#         name: kenya-lend-intelligence-api
+#         type: web
+#         envVarKey: DATABASE_URL
+
+# - type: redis
+#   name: kenya-lend-redis
+#   plan: starter
+#   maxmemoryPolicy: allkeys-lru
